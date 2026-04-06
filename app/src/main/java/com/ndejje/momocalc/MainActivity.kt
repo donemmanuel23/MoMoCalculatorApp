@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -26,7 +27,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.ndejje.momocalc.ui.theme.MoMoCalculatorAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -34,9 +34,15 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
     setContent {
-      MaterialTheme(typography = MoMoTypography) {
+      MoMoCalculatorAppTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
-          MoMoCalcScreen()
+          Scaffold(
+            topBar = { MoMoTopBar() }
+          ) { innerPadding ->
+            MoMoCalcScreen(
+              modifier = Modifier.padding(innerPadding)
+            )
+          }
         }
       }
     }
@@ -48,9 +54,9 @@ fun HoistedAmountInput(
   amount: String,
   onAmountChange: (String) -> Unit,
   isError: Boolean = false,
-  modifier: Modifier = Modifier   // ← new parameter with safe default
+  modifier: Modifier = Modifier
 ) {
-  Column(modifier = modifier) {        // ← modifier applied to outer Column
+  Column(modifier = modifier) {
     TextField(
       value = amount,
       onValueChange = onAmountChange,
@@ -69,7 +75,7 @@ fun HoistedAmountInput(
 }
 
 @Composable
-fun MoMoCalcScreen() {
+fun MoMoCalcScreen(modifier: Modifier = Modifier) {
   var amountInput by remember { mutableStateOf("") }
 
   val numericAmount = amountInput.toDoubleOrNull()
@@ -78,7 +84,7 @@ fun MoMoCalcScreen() {
   val formattedFee = "UGX %,.0f".format(fee)
 
   Column(
-    modifier = Modifier
+    modifier = modifier // Use the passed modifier here
       .fillMaxSize()
       .padding(dimensionResource(R.dimen.screen_padding)),
     verticalArrangement = Arrangement.Center,
@@ -89,9 +95,11 @@ fun MoMoCalcScreen() {
       style = MaterialTheme.typography.headlineMedium,
       textAlign = TextAlign.Center
     )
-    Spacer(modifier = Modifier.height(
-      dimensionResource(R.dimen.spacing_large)
-    ))
+    Spacer(
+      modifier = Modifier.height(
+        dimensionResource(R.dimen.spacing_large)
+      )
+    )
 
     HoistedAmountInput(
       amount = amountInput,
@@ -99,9 +107,11 @@ fun MoMoCalcScreen() {
       isError = isError,
       modifier = Modifier.fillMaxWidth()
     )
-    Spacer(modifier = Modifier.height(
-      dimensionResource(R.dimen.spacing_medium)
-    ))
+    Spacer(
+      modifier = Modifier.height(
+        dimensionResource(R.dimen.spacing_medium)
+      )
+    )
 
     Text(
       text = stringResource(R.string.fee_label, formattedFee),
