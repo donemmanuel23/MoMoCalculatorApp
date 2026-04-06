@@ -27,14 +27,13 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.ndejje.momocalc.ui.theme.MoMoCalculatorAppTheme
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
     setContent {
-      MoMoAppTheme {         // ← replaces raw MaterialTheme(...)
+      MoMoAppTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
           Scaffold(topBar = { MoMoTopBar() }) { innerPadding ->
             MoMoCalcScreen(modifier = Modifier.padding(innerPadding))
@@ -49,8 +48,8 @@ class MainActivity : ComponentActivity() {
 fun HoistedAmountInput(
   amount: String,
   onAmountChange: (String) -> Unit,
-  isError: Boolean = false,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  isError: Boolean = false
 ) {
   Column(modifier = modifier) {
     TextField(
@@ -80,7 +79,7 @@ fun MoMoCalcScreen(modifier: Modifier = Modifier) {
   val formattedFee = "UGX %,.0f".format(fee)
 
   Column(
-    modifier = modifier // Use the passed modifier here
+    modifier = modifier
       .fillMaxSize()
       .padding(dimensionResource(R.dimen.screen_padding)),
     verticalArrangement = Arrangement.Center,
@@ -100,8 +99,8 @@ fun MoMoCalcScreen(modifier: Modifier = Modifier) {
     HoistedAmountInput(
       amount = amountInput,
       onAmountChange = { amountInput = it },
-      isError = isError,
-      modifier = Modifier.fillMaxWidth()
+      modifier = Modifier.fillMaxWidth(),
+      isError = isError
     )
     Spacer(
       modifier = Modifier.height(
@@ -120,7 +119,7 @@ fun MoMoCalcScreen(modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun MoMoCalcPreview() {
-  MoMoCalculatorAppTheme {
+  MoMoAppTheme {
     Surface {
       MoMoCalcScreen()
     }
