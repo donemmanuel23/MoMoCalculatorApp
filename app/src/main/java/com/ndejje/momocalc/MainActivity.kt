@@ -141,7 +141,7 @@ fun MoMoCalcScreen(modifier: Modifier = Modifier) {
     Text(
         text = "💸",
         fontSize = 64.sp,
-        modifier = Modifier.padding(top = 16.dp)
+        modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)
     )
 
     // Specific Screen Title

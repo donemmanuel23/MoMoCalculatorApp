@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun MoMoTopBar() {
   CenterAlignedTopAppBar(
+    modifier = Modifier.height(100.dp), // Increased height of the bar to accommodate a bigger logo
     title = {
       Row(
         verticalAlignment = Alignment.CenterVertically
@@ -32,10 +33,10 @@ fun MoMoTopBar() {
         Image(
           painter = painterResource(id = R.drawable.ic_momo_logo),
           contentDescription = "MoMo Logo",
-          modifier = Modifier.size(32.dp),
+          modifier = Modifier.size(70.dp), // Increased from 32.dp to 48.dp
           contentScale = ContentScale.Fit
         )
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(6.dp)) // Added more space between logo and text
         Text(
           text = stringResource(R.string.app_title),
           style = MaterialTheme.typography.titleLarge,
