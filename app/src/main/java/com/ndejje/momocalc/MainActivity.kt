@@ -46,25 +46,24 @@ class MainActivity : ComponentActivity() {
 fun HoistedAmountInput(
   amount: String,
   onAmountChange: (String) -> Unit,
-  modifier: Modifier = Modifier,
-  isError: Boolean = false
+  isError: Boolean = false,
+  modifier: Modifier = Modifier   // ← new parameter with safe default
 ) {
-  Column(modifier = modifier) {
+  Column(modifier = modifier) {        // ← modifier applied to outer Column
     TextField(
       value = amount,
       onValueChange = onAmountChange,
       isError = isError,
-      label = { Text(stringResource(R.string.enter_amount)) },
-      supportingText = {
-        if (isError) {
-          Text(
-            text = stringResource(R.string.error_numbers_only),
-            color = MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodySmall,
-          )
-        }
-      }
+      modifier = Modifier.fillMaxWidth(),
+      label = { Text(stringResource(R.string.enter_amount)) }
     )
+    if (isError) {
+      Text(
+        text = stringResource(R.string.error_numbers_only),
+        color = MaterialTheme.colorScheme.error,
+        style = MaterialTheme.typography.bodySmall
+      )
+    }
   }
 }
 
