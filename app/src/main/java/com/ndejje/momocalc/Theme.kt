@@ -4,6 +4,22 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 
+
+import androidx.compose.material3.darkColorScheme
+
+private val DarkColorScheme = darkColorScheme(
+  primary         = BrandGold,        // gold becomes the hero in dark mode
+  onPrimary       = NavyBlueDark,
+  secondary       = NavyBlue,
+  onSecondary     = White,
+  background      = DarkBackground,
+  onBackground    = OnDarkText,
+  surface         = DarkSurface,
+  onSurface       = OnDarkText,
+  error           = ErrorRed,
+  onError         = OnErrorWhite
+)
+
 private val LightColorScheme = lightColorScheme(
   primary         = NavyBlue,
   onPrimary       = White,
