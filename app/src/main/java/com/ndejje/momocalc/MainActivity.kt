@@ -34,14 +34,10 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
     setContent {
-      MoMoCalculatorAppTheme {
+      MoMoAppTheme {         // ← replaces raw MaterialTheme(...)
         Surface(modifier = Modifier.fillMaxSize()) {
-          Scaffold(
-            topBar = { MoMoTopBar() }
-          ) { innerPadding ->
-            MoMoCalcScreen(
-              modifier = Modifier.padding(innerPadding)
-            )
+          Scaffold(topBar = { MoMoTopBar() }) { innerPadding ->
+            MoMoCalcScreen(modifier = Modifier.padding(innerPadding))
           }
         }
       }
