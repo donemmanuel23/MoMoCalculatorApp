@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun MoMoTopBar() {
   CenterAlignedTopAppBar(
-    modifier = Modifier.height(100.dp), // Increased height of the bar to accommodate a bigger logo
+    modifier = Modifier.height(90.dp), // Increased height of the bar to accommodate a bigger logo
     title = {
       Row(
         verticalAlignment = Alignment.CenterVertically

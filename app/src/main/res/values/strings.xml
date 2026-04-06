@@ -5,7 +5,14 @@
     <string name="enter_amount">Enter Amount (UGX)</string>
     <string name="fee_label">Withdrawal Fee</string>
     <string name="total_label">Total Deduction</string>
-    <string name="amount_label">Principal Amount</string>
+    <string name="amount_label">Cash to Receive</string>
     <string name="error_numbers_only">Please enter numbers only</string>
     <string name="clear_input">Clear input</string>
+    <string name="max_withdrawal_label">Calculate Max Withdrawal</string>
+    <string name="max_withdrawal_desc">Total balance includes fee</string>
+    <string name="network_mtn">MTN MoMo</string>
+    <string name="network_airtel">Airtel Money</string>
+    <string name="recent_calculations">Recent Calculations</string>
+    <string name="share_label">Share Breakdown</string>
+    <string name="share_text">Withdrawal Breakdown:\nCash: %1$s\nFee: %2$s\nTotal needed: %3$s\nCalculated via Ndejje MoMo Calc</string>
 </resources>

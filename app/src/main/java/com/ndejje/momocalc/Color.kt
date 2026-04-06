@@ -8,6 +8,10 @@ val NavyBlueDark  = Color(0xFF001540)
 val BrandGold     = Color(0xFFC9A227)
 val BrandGoldDark = Color(0xFF9C7A1A)
 
+// Network specific
+val MtnYellow     = Color(0xFFFFCC00)
+val AirtelRed     = Color(0xFFFF0000)
+
 // Neutrals
 val White         = Color(0xFFFFFFFF)
 val LightGrey     = Color(0xFFF4F6FB)

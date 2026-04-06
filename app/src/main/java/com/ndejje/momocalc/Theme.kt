@@ -53,7 +53,10 @@ fun MoMoAppTheme(
 @Composable
 fun PreviewLight() {
   MoMoAppTheme(darkTheme = false) {
-    MoMoCalcScreen()
+    MoMoCalcScreen(
+        network = Network.MTN,
+        onNetworkChange = {}
+    )
   }
 }
 
@@ -65,6 +68,9 @@ fun PreviewLight() {
 @Composable
 fun PreviewDark() {
   MoMoAppTheme(darkTheme = true) {
-    MoMoCalcScreen()
+    MoMoCalcScreen(
+        network = Network.MTN,
+        onNetworkChange = {}
+    )
   }
 }
