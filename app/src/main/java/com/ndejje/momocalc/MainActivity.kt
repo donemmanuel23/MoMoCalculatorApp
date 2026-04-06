@@ -16,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,7 +35,10 @@ class MainActivity : ComponentActivity() {
     enableEdgeToEdge()
     setContent {
       MoMoAppTheme {
-        Surface(modifier = Modifier.fillMaxSize()) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
           Scaffold(topBar = { MoMoTopBar() }) { innerPadding ->
             MoMoCalcScreen(modifier = Modifier.padding(innerPadding))
           }
@@ -57,13 +61,20 @@ fun HoistedAmountInput(
       onValueChange = onAmountChange,
       isError = isError,
       modifier = Modifier.fillMaxWidth(),
-      label = { Text(stringResource(R.string.enter_amount)) }
+      shape = MaterialTheme.shapes.small,
+      label = { Text(stringResource(R.string.enter_amount)) },
+      colors = TextFieldDefaults.colors(
+          focusedContainerColor = MaterialTheme.colorScheme.surface,
+          unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+          errorContainerColor = MaterialTheme.colorScheme.surface
+      )
     )
     if (isError) {
       Text(
         text = stringResource(R.string.error_numbers_only),
         color = MaterialTheme.colorScheme.error,
-        style = MaterialTheme.typography.bodySmall
+        style = MaterialTheme.typography.bodySmall,
+        modifier = Modifier.padding(start = dimensionResource(R.dimen.spacing_small), top = dimensionResource(R.dimen.spacing_small))
       )
     }
   }
@@ -82,37 +93,36 @@ fun MoMoCalcScreen(modifier: Modifier = Modifier) {
     modifier = modifier
       .fillMaxSize()
       .padding(dimensionResource(R.dimen.screen_padding)),
-    verticalArrangement = Arrangement.Center,
+    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_large)),
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
+    // Brand Heading
     Text(
       text = stringResource(R.string.app_title),
       style = MaterialTheme.typography.headlineMedium,
+      color = MaterialTheme.colorScheme.primary,
       textAlign = TextAlign.Center
     )
-    Spacer(
-      modifier = Modifier.height(
-        dimensionResource(R.dimen.spacing_large)
-      )
-    )
 
+    // Input Section
     HoistedAmountInput(
       amount = amountInput,
       onAmountChange = { amountInput = it },
       modifier = Modifier.fillMaxWidth(),
       isError = isError
     )
-    Spacer(
-      modifier = Modifier.height(
-        dimensionResource(R.dimen.spacing_medium)
-      )
-    )
 
-    Text(
-      text = stringResource(R.string.fee_label, formattedFee),
-      style = MaterialTheme.typography.bodyLarge,
-      textAlign = TextAlign.Center
-    )
+    // Result Section
+    if (amountInput.isNotEmpty() && !isError) {
+        FeeCard(formattedFee = formattedFee)
+    } else {
+        // Placeholder to keep layout stable or a hint
+        Text(
+            text = "Enter an amount to see the fee",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+        )
+    }
   }
 }
 
