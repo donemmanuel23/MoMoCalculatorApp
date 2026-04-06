@@ -111,3 +111,31 @@ fun HoistedAmountInput(
      )
    }
  }
+
+@Composable
+fun HoistedStateInput(
+  amount: String,
+  onAmountChanged: (String) -> Unit,
+  modifier: Modifier = Modifier,
+  isError: Boolean = false
+) {
+  Column(modifier = modifier) {
+    TextField(
+      value = amount,
+      onValueChange = onAmountChanged,
+      label = {
+        Text(stringResource(R.string.enter_amount))
+      },
+      isError = isError,
+      supportingText = {
+        if (isError) {
+          Text(
+            text = stringResource(R.string.error_numbers_only),
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodySmall,
+          )
+        }
+      }
+    )
+  }
+}
