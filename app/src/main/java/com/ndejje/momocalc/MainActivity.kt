@@ -9,7 +9,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,12 +18,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -42,7 +44,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,7 +61,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.text.NumberFormat
@@ -71,16 +73,22 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MoMoAppTheme {
-                MoMoApp()
+            val systemInDark = isSystemInDarkTheme()
+            var isDarkMode by rememberSaveable { mutableStateOf(systemInDark) }
+            
+            MoMoAppTheme(darkTheme = isDarkMode) {
+                MoMoApp(
+                    isDarkMode = isDarkMode,
+                    onThemeToggle = { isDarkMode = !isDarkMode }
+                )
             }
         }
     }
 }
 
 @Composable
-fun MoMoApp() {
-    var selectedNetwork by remember { mutableStateOf(Network.MTN) }
+fun MoMoApp(isDarkMode: Boolean, onThemeToggle: () -> Unit) {
+    var selectedNetwork by rememberSaveable { mutableStateOf(Network.MTN) }
     val backgroundColor by animateColorAsState(
         if (selectedNetwork == Network.MTN) MtnYellow.copy(alpha = 0.05f) 
         else AirtelRed.copy(alpha = 0.05f), label = "bg"
@@ -88,7 +96,7 @@ fun MoMoApp() {
 
     Surface(modifier = Modifier.fillMaxSize(), color = backgroundColor) {
         Scaffold(
-            topBar = { MoMoTopBar() }
+            topBar = { MoMoTopBar(isDarkMode = isDarkMode, onThemeToggle = onThemeToggle) }
         ) { innerPadding ->
             MoMoCalcScreen(
                 network = selectedNetwork,
@@ -105,16 +113,22 @@ fun MoMoCalcScreen(
     onNetworkChange: (Network) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var amountInput by remember { mutableStateOf("") }
-    var isMaxMode by remember { mutableStateOf(false) }
-    val history = remember { mutableStateListOf<String>() }
+    var amountInput by rememberSaveable { mutableStateOf("") }
+    var isMaxMode by rememberSaveable { mutableStateOf(false) }
+    
+    val history = rememberSaveable(
+        saver = listSaver(
+            save = { it.toList() },
+            restore = { mutableStateListOf<String>().apply { addAll(it) } }
+        )
+    ) { mutableStateListOf<String>() } 
+    
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
 
     val numericAmount = amountInput.toDoubleOrNull() ?: 0.0
     val isError = amountInput.isNotEmpty() && amountInput.toDoubleOrNull() == null
 
-    // Logic for Tiered Fees
     val feeVal = if (isMaxMode) 0.0 else calculateFee(numericAmount, network)
     val amountToReceive = if (isMaxMode) calculateMaxCash(numericAmount, network) else numericAmount
     val totalDeduction = if (isMaxMode) numericAmount else (numericAmount + feeVal)
@@ -127,13 +141,34 @@ fun MoMoCalcScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 1. Network Switcher
-        NetworkToggle(network, onNetworkChange)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Button(
+                onClick = { onNetworkChange(Network.MTN) },
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (network == Network.MTN) MtnYellow else Color.Gray.copy(alpha = 0.2f),
+                    contentColor = if (network == Network.MTN) Color.Black else MaterialTheme.colorScheme.onBackground
+                )
+            ) {
+                Text(stringResource(R.string.network_mtn), fontWeight = FontWeight.Bold)
+            }
+            Button(
+                onClick = { onNetworkChange(Network.AIRTEL) },
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (network == Network.AIRTEL) AirtelRed else Color.Gray.copy(alpha = 0.2f),
+                    contentColor = if (network == Network.AIRTEL) Color.White else MaterialTheme.colorScheme.onBackground
+                )
+            ) {
+                Text(stringResource(R.string.network_airtel), fontWeight = FontWeight.Bold)
+            }
+        }
 
-        // 2. Money Visual
-        Text(text = if (network == Network.MTN) "🟡" else "🔴", fontSize = 40.sp)
+        Text(text = "💸", fontSize = 50.sp)
 
-        // 3. Max Withdrawal Switch
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -151,7 +186,6 @@ fun MoMoCalcScreen(
             )
         }
 
-        // 4. Input Field with Live Comma Formatting
         HoistedAmountInput(
             amount = amountInput,
             onAmountChange = { amountInput = it.take(9) },
@@ -160,7 +194,6 @@ fun MoMoCalcScreen(
             network = network
         )
 
-        // 5. Results Section
         AnimatedVisibility(
             visible = amountInput.isNotEmpty() && !isError && numericAmount >= 500,
             enter = fadeIn() + slideInVertically(initialOffsetY = { it / 2 })
@@ -182,17 +215,20 @@ fun MoMoCalcScreen(
                         context.startActivity(Intent.createChooser(intent, "Share via"))
                         if (!history.contains(amountInput)) history.add(0, amountInput)
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = if (network == Network.MTN) MtnYellow else AirtelRed, contentColor = Color.Black)
+                    colors = ButtonDefaults.buttonColors(containerColor = if (network == Network.MTN) MtnYellow else AirtelRed, contentColor = if (network == Network.MTN) Color.Black else Color.White)
                 ) {
                     Text("Share Breakdown")
                 }
             }
         }
 
-        // 6. Recent History
         if (history.isNotEmpty()) {
             Spacer(Modifier.height(8.dp))
-            Text(stringResource(R.string.recent_calculations), style = MaterialTheme.typography.titleSmall)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Info, contentDescription = null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f))
+                Spacer(Modifier.width(4.dp))
+                Text(stringResource(R.string.recent_calculations), style = MaterialTheme.typography.titleSmall)
+            }
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(history.take(3)) { item ->
                     Card(
@@ -204,29 +240,6 @@ fun MoMoCalcScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun NetworkToggle(current: Network, onNetworkChange: (Network) -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        NetworkButton("MTN", current == Network.MTN, MtnYellow) { onNetworkChange(Network.MTN) }
-        NetworkButton("Airtel", current == Network.AIRTEL, AirtelRed) { onNetworkChange(Network.AIRTEL) }
-    }
-}
-
-@Composable
-fun NetworkButton(label: String, selected: Boolean, color: Color, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .width(120.dp)
-            .clickable { onClick() },
-        colors = CardDefaults.cardColors(containerColor = if (selected) color else Color.LightGray.copy(alpha = 0.2f))
-    ) {
-        Text(label, modifier = Modifier.padding(8.dp).fillMaxWidth(), textAlign = TextAlign.Center, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -258,8 +271,6 @@ fun HoistedAmountInput(
     )
 }
 
-// --- UTILS ---
-
 fun formatCurrency(amount: Double): String {
     val locale = Locale.Builder().setLanguage("en").setRegion("UG").build()
     val formatter = NumberFormat.getCurrencyInstance(locale)
@@ -270,7 +281,6 @@ class CurrencyVisualTransformation : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         val originalText = text.text
         if (originalText.isEmpty()) return TransformedText(text, OffsetMapping.Identity)
-        
         val formatted = NumberFormat.getInstance(Locale.US).format(originalText.toLongOrNull() ?: 0L)
         
         val offsetMapping = object : OffsetMapping {
@@ -279,18 +289,13 @@ class CurrencyVisualTransformation : VisualTransformation {
                 val formattedBefore = NumberFormat.getInstance(Locale.US).format(textBefore.toLongOrNull() ?: 0L)
                 return if (textBefore.isEmpty()) 0 else formattedBefore.length
             }
-            override fun transformedToOriginal(offset: Int): Int {
-                // Simplified mapping: just return the length to keep it safe
-                return originalText.length 
-            }
+            override fun transformedToOriginal(offset: Int): Int = originalText.length
         }
         return TransformedText(AnnotatedString(formatted), offsetMapping)
     }
 }
 
 fun calculateFee(amount: Double, network: Network): Double {
-    // Current tiered logic is shared by both networks. 
-    // You can adjust these values if MTN and Airtel fees differ.
     return when (amount.toInt()) {
         in 500..2500 -> 330.0
         in 2501..5000 -> 440.0
@@ -309,7 +314,6 @@ fun calculateFee(amount: Double, network: Network): Double {
 }
 
 fun calculateMaxCash(totalBalance: Double, network: Network): Double {
-    // Finds the largest amount X such that X + Fee(X) <= totalBalance
     var low = 0.0
     var high = totalBalance
     var ans = 0.0

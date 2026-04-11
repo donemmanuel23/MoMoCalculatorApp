@@ -4,15 +4,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -28,11 +24,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MoMoTopBar() {
-    // Wrapping in Surface for shadow and background color
+fun MoMoTopBar(
+    isDarkMode: Boolean,
+    onThemeToggle: () -> Unit
+) {
     Surface(
         color = MaterialTheme.colorScheme.primary,
         tonalElevation = 8.dp,
@@ -41,7 +40,7 @@ fun MoMoTopBar() {
             .clip(RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp))
     ) {
         CenterAlignedTopAppBar(
-            modifier = Modifier.height(100.dp), // Height to fit the large logo nicely
+            modifier = Modifier.height(100.dp),
             title = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -49,7 +48,7 @@ fun MoMoTopBar() {
                     Image(
                         painter = painterResource(id = R.drawable.ic_momo_logo),
                         contentDescription = "MoMo Logo",
-                        modifier = Modifier.size(70.dp), // Your preferred large size
+                        modifier = Modifier.size(70.dp),
                         contentScale = ContentScale.Fit
                     )
                     Spacer(modifier = Modifier.width(12.dp))
@@ -62,16 +61,16 @@ fun MoMoTopBar() {
                 }
             },
             actions = {
-                IconButton(onClick = { /* Handle Info */ }) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = "App Info",
-                        tint = MaterialTheme.colorScheme.onPrimary
+                IconButton(onClick = onThemeToggle) {
+                    // Using Emojis as icons to avoid unresolved reference errors with Extended Icons
+                    Text(
+                        text = if (isDarkMode) "☀️" else "🌙",
+                        fontSize = 20.sp
                     )
                 }
             },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                containerColor = Color.Transparent, // Surface handles the background
+                containerColor = Color.Transparent,
                 titleContentColor = MaterialTheme.colorScheme.onPrimary,
                 actionIconContentColor = MaterialTheme.colorScheme.onPrimary
             )
