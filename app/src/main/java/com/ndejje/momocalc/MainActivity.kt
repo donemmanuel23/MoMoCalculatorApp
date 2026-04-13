@@ -22,7 +22,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Info
@@ -61,6 +63,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.text.NumberFormat
@@ -74,6 +77,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val systemInDark = isSystemInDarkTheme()
+            // rememberSaveable ensures the theme choice persists during rotation
             var isDarkMode by rememberSaveable { mutableStateOf(systemInDark) }
             
             MoMoAppTheme(darkTheme = isDarkMode) {
@@ -88,7 +92,9 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MoMoApp(isDarkMode: Boolean, onThemeToggle: () -> Unit) {
+    // rememberSaveable ensures the network selection persists
     var selectedNetwork by rememberSaveable { mutableStateOf(Network.MTN) }
+    
     val backgroundColor by animateColorAsState(
         if (selectedNetwork == Network.MTN) MtnYellow.copy(alpha = 0.05f) 
         else AirtelRed.copy(alpha = 0.05f), label = "bg"
@@ -113,9 +119,13 @@ fun MoMoCalcScreen(
     onNetworkChange: (Network) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Added scroll state to handle landscape mode and small screens
+    val scrollState = rememberScrollState()
+    
     var amountInput by rememberSaveable { mutableStateOf("") }
     var isMaxMode by rememberSaveable { mutableStateOf(false) }
     
+    // History list maintains state using a custom saver
     val history = rememberSaveable(
         saver = listSaver(
             save = { it.toList() },
@@ -137,10 +147,12 @@ fun MoMoCalcScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .verticalScroll(scrollState) // Enable vertical scrolling
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // 1. Network Switcher
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -167,8 +179,10 @@ fun MoMoCalcScreen(
             }
         }
 
+        // 2. Money Visual
         Text(text = "💸", fontSize = 50.sp)
 
+        // 3. Max Withdrawal Switch
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -186,6 +200,7 @@ fun MoMoCalcScreen(
             )
         }
 
+        // 4. Input Field
         HoistedAmountInput(
             amount = amountInput,
             onAmountChange = { amountInput = it.take(9) },
@@ -194,6 +209,7 @@ fun MoMoCalcScreen(
             network = network
         )
 
+        // 5. Results Section
         AnimatedVisibility(
             visible = amountInput.isNotEmpty() && !isError && numericAmount >= 500,
             enter = fadeIn() + slideInVertically(initialOffsetY = { it / 2 })
@@ -222,6 +238,7 @@ fun MoMoCalcScreen(
             }
         }
 
+        // 6. Recent History
         if (history.isNotEmpty()) {
             Spacer(Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
